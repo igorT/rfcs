@@ -27,72 +27,78 @@ and `save` methods. Those are also easier to design and implement because they m
 
 Design of the RequestState service:
 
-    interface Query {
-    	op: string
-    }
-    
-    interface FindRecordQuery extends Query {
-    	op: 'findRecord'
-    	identifier: RecordIdentifier
-    	options: any
-    }
-    
-    interface Mutation {
-    	op: string
-    }
-    
-    interface SaveRecordMutation extends Mutation {
-      op: 'saveRecord'
-      identifier: RecordIdentifier
-    	options: any
-    }
-    
-    interface Request {
-    	state: 'pending' | 'fulfilled' | 'rejected'
-    	result?: unknown
-    	type: 'query' | 'mutation'
-    	data: Query | Mutation
-    }
-    
-    class RequestStateService {
-    	getPendingRequests(recordIdentifier: RecordIdentifier): Request[]
-      getLastRequest(recordIdentifier: RecordIdentifier): Request | null
-      subscribe(recordIdentifier: RecordIdentifier, callback: Function)
-    	unsubscribe(recordIdentifier: RecordIdentifier, callback: Function)
-    }
+```
+interface Query {
+  op: string
+}
+
+interface FindRecordQuery extends Query {
+  op: 'findRecord'
+  identifier: RecordIdentifier
+  options: any
+}
+
+interface Mutation {
+  op: string
+}
+
+interface SaveRecordMutation extends Mutation {
+  op: 'saveRecord'
+  identifier: RecordIdentifier
+  options: any
+}
+
+interface Request {
+  state: 'pending' | 'fulfilled' | 'rejected'
+  result?: unknown
+  type: 'query' | 'mutation'
+  data: Query | Mutation
+}
+
+class RequestStateService {
+  getPendingRequests(recordIdentifier: RecordIdentifier): Request[]
+  getLastRequest(recordIdentifier: RecordIdentifier): Request | null
+  subscribe(recordIdentifier: RecordIdentifier, callback: Function)
+  unsubscribe(recordIdentifier: RecordIdentifier, callback: Function)
+}
+```
 
 The subscription methods are needed in order the model to learn about changes to network states. Once tracked properties exposes a public way for manipulating Tags, we will likely be able to move away from the subscription mechanism to a nicer notification mechanism.
 
 Expose a service on the store
 
-    class Store {
-      getRequestStateService(): RequestStateService
-    }   
+```
+class Store {
+  getRequestStateService(): RequestStateService
+}   
+```
 
 Using these  we can reimplement the current `isSaving` method on `DS.Model`
 
 The subscription mechanism is deliberately somewhat klunky in anticipation of eventually replacing it with an automatic tracked properties solution.
 
-    DS.Model.extend({
-    
-      init() {
-    		this._requestSubscriptions = {};
-       } 
-    
-    	isSaving: computed(function () {
-        this._subscribeRequests('isSaving');
-        let requests = this.store.requestCache.getPending(identifierForModel(this));
-        return !!requests.find((req) => req.data.op === 'saveRecord');
-    	}),
-    
-      _subscribeRequests(key) {
-        if (!this._requestSubscriptions[key]) {
-    			this._requestSubscriptions[key] = true;
-          this.store.getRequestStateService().subscribe(identifierForModel(this), () =>
-    				this.notifyPropertyChange(key));
-        }
-      }
-    });
+```
+DS.Model.extend({
+
+  init() {
+    this._requestSubscriptions = {};
+  } 
+
+  isSaving: computed(function () {
+    this._subscribeRequests('isSaving');
+    let requests = this.store.requestCache.getPending(identifierForModel(this));
+    return !!requests.find((req) => req.data.op === 'saveRecord');
+  }),
+
+  _subscribeRequests(key) {
+    if (!this._requestSubscriptions[key]) {
+      this._requestSubscriptions[key] = true;
+      this.store.getRequestStateService().subscribe(identifierForModel(this), () =>
+      this.notifyPropertyChange(key));
+    }
+  }
+});
+```
 
 ## Drawbacks
 
