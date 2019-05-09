@@ -27,7 +27,7 @@ and `save` methods. Those are also easier to design and implement because they m
 
 Design of the RequestState service:
 
-```
+```ts
 // no id yet
 interface Request {
   data: Operation[];
@@ -46,7 +46,7 @@ interface Operation {
   op: string
 }
 
-interface Query extends Operation;
+interface Query extends Operation {};
 
 interface FindRecordQuery extends Query {
   op: 'findRecord'
@@ -54,7 +54,7 @@ interface FindRecordQuery extends Query {
   options: any
 }
 
-interface Mutation extends Operation;
+interface Mutation extends Operation {};
 
 interface SaveRecordMutation extends Mutation {
   op: 'saveRecord'
@@ -70,7 +70,7 @@ interface RequestState {
 }
 
 interface Response {
-  data: unkown
+  data: unknown
 }
 
 class RequestStateService {
@@ -85,7 +85,7 @@ The subscription methods are needed in order the model to learn about changes to
 
 Expose a service on the store
 
-```
+```ts
 class Store {
   getRequestStateService(): RequestStateService
 }   
@@ -95,7 +95,7 @@ Using these  we can reimplement the current `isSaving` method on `DS.Model`
 
 The subscription mechanism is deliberately somewhat klunky in anticipation of replacing it with an automatic tracked properties solution.
 
-```
+```ts
 DS.Model.extend({
 
   init() {
@@ -111,8 +111,9 @@ DS.Model.extend({
   _subscribeRequests(key) {
     if (!this._requestSubscriptions[key]) {
       this._requestSubscriptions[key] = true;
-      this.store.getRequestStateService().subscribe(identifierForModel(this), () =>
-      this.notifyPropertyChange(key));
+      this.store.getRequestStateService().subscribe(identifierForModel(this), () => {
+        this.notifyPropertyChange(key);
+      })
     }
   }
 });
