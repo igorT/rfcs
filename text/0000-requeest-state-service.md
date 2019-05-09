@@ -28,9 +28,25 @@ and `save` methods. Those are also easier to design and implement because they m
 Design of the RequestState service:
 
 ```
-interface Query {
+// no id yet
+interface Request {
+  data: Operation[];
+  options: any
+}
+
+interface QueryRequest extends Request {
+  data: QueryOperation;
+}
+
+interface MutationRequest extends Request {
+  data: MutationOperation[];
+}
+
+interface Operation {
   op: string
 }
+
+interface Query extends Operation;
 
 interface FindRecordQuery extends Query {
   op: 'findRecord'
@@ -38,9 +54,7 @@ interface FindRecordQuery extends Query {
   options: any
 }
 
-interface Mutation {
-  op: string
-}
+interface Mutation extends Operation;
 
 interface SaveRecordMutation extends Mutation {
   op: 'saveRecord'
@@ -48,11 +62,15 @@ interface SaveRecordMutation extends Mutation {
   options: any
 }
 
-interface Request {
+interface RequestState {
   state: 'pending' | 'fulfilled' | 'rejected'
-  result?: unknown
   type: 'query' | 'mutation'
-  data: Query | Mutation
+  request: Request;
+  response?: Response;
+}
+
+interface Response {
+  data: unkown
 }
 
 class RequestStateService {
@@ -75,7 +93,7 @@ class Store {
 
 Using these  we can reimplement the current `isSaving` method on `DS.Model`
 
-The subscription mechanism is deliberately somewhat klunky in anticipation of eventually replacing it with an automatic tracked properties solution.
+The subscription mechanism is deliberately somewhat klunky in anticipation of replacing it with an automatic tracked properties solution.
 
 ```
 DS.Model.extend({
@@ -86,7 +104,7 @@ DS.Model.extend({
 
   isSaving: computed(function () {
     this._subscribeRequests('isSaving');
-    let requests = this.store.requestCache.getPending(identifierForModel(this));
+    let requests = this.store.getRequestStateService().getPending(identifierForModel(this));
     return !!requests.find((req) => req.data.op === 'saveRecord');
   }),
 
@@ -99,6 +117,11 @@ DS.Model.extend({
   }
 });
 ```
+
+## How we teach this
+
+Initially we would write up the API docs for the request. Once several followup RFCs which made the design ergonomic and added other use cases,
+we would write up a guide entry showing common ways to handle request based use cases with the request state service.
 
 ## Drawbacks
 
