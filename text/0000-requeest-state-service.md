@@ -70,7 +70,8 @@ interface RequestState {
 }
 
 interface Response {
-  data: unknown
+  rawData: unknown;
+  data: unknown;
 }
 
 function unsubscribe(token: UnsubscribeToken): void
