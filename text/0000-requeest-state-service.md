@@ -73,11 +73,12 @@ interface Response {
   data: unknown
 }
 
+function unsubscribe(token: UnsubscribeToken): void
+
 class RequestStateService {
   getPendingRequests(recordIdentifier: RecordIdentifier): Request[]
   getLastRequest(recordIdentifier: RecordIdentifier): Request | null
-  subscribe(recordIdentifier: RecordIdentifier, callback: Function)
-  unsubscribe(recordIdentifier: RecordIdentifier, callback: Function)
+  subscribe(recordIdentifier: RecordIdentifier, callback: Function): UnsubscribeToken
 }
 ```
 
