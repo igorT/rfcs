@@ -80,6 +80,7 @@ class RequestStateService {
   getPendingRequests(recordIdentifier: RecordIdentifier): Request[]
   getLastRequest(recordIdentifier: RecordIdentifier): Request | null
   subscribe(recordIdentifier: RecordIdentifier, callback: Function): UnsubscribeToken
+  unsubcribe(token: UnsubscribeToken): void
 }
 ```
 
