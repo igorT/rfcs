@@ -35,7 +35,7 @@ interface Request {
 }
 
 interface QueryRequest extends Request {
-  data: QueryOperation;
+  data: QueryOperation[];
 }
 
 interface MutationRequest extends Request {
@@ -77,8 +77,8 @@ interface Response {
 function unsubscribe(token: UnsubscribeToken): void
 
 class RequestStateService {
-  getPendingRequests(recordIdentifier: RecordIdentifier): Request[]
-  getLastRequest(recordIdentifier: RecordIdentifier): Request | null
+  getPendingRequests(recordIdentifier: RecordIdentifier): RequestState[]
+  getLastRequest(recordIdentifier: RecordIdentifier): RequestState | null
   subscribe(recordIdentifier: RecordIdentifier, callback: Function): UnsubscribeToken
   unsubcribe(token: UnsubscribeToken): void
 }
