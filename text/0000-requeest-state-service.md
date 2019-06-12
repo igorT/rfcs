@@ -50,7 +50,7 @@ interface Query extends Operation {};
 
 interface FindRecordQuery extends Query {
   op: 'findRecord'
-  identifier: RecordIdentifier
+  recordIdentifier: RecordIdentifier
   options: any
 }
 
@@ -58,7 +58,7 @@ interface Mutation extends Operation {};
 
 interface SaveRecordMutation extends Mutation {
   op: 'saveRecord'
-  identifier: RecordIdentifier
+  recordIdentifier: RecordIdentifier
   options: any
 }
 
@@ -74,6 +74,8 @@ interface Response {
   data: unknown;
 }
 
+
+// exported from '@ember-data/store';
 function unsubscribe(token: UnsubscribeToken): void
 
 class RequestStateService {
