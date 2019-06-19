@@ -83,9 +83,9 @@ interface NotificationCallback {
 }
 
 class RequestStateService {
-  getPendingRequestsForRecord(recordIdentifier: RecordIdentifier | Record): RequestState[]
-  getLastRequestForRecord(recordIdentifier: RecordIdentifier | Record): RequestState | null
-  subscribeForRecord(recordIdentifier: RecordIdentifier | Record, callback: NotificationCallback): UnsubscribeToken
+  getPendingRequestsForRecord(recordIdentifier: RecordIdentifier): RequestState[]
+  getLastRequestForRecord(recordIdentifier: RecordIdentifier): RequestState | null
+  subscribeForRecord(recordIdentifier: RecordIdentifier, callback: NotificationCallback): UnsubscribeToken
   unsubcribe(token: UnsubscribeToken): void
 }
 ```
