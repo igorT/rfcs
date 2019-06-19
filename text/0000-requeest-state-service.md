@@ -83,9 +83,9 @@ interface NotificationCallback {
 }
 
 class RequestStateService {
-  getPendingRequests(recordIdentifier: RecordIdentifier | Record): RequestState[]
-  getLastRequest(recordIdentifier: RecordIdentifier | Record): RequestState | null
-  subscribe(recordIdentifier: RecordIdentifier | Record, callback: NotificationCallback): UnsubscribeToken
+  getPendingRequestsForRecord(recordIdentifier: RecordIdentifier | Record): RequestState[]
+  getLastRequestForRecord(recordIdentifier: RecordIdentifier | Record): RequestState | null
+  subscribeForRecord(recordIdentifier: RecordIdentifier | Record, callback: NotificationCallback): UnsubscribeToken
   unsubcribe(token: UnsubscribeToken): void
 }
 ```
@@ -107,6 +107,16 @@ The subscription mechanism is deliberately somewhat klunky in anticipation of re
 ```ts
 DS.Model.extend({
 
+  isSaving: computed(function () {
+    let requests = this.store.getRequestStateService().getPending(this);
+    return !!requests.find((req) => req.data.op === 'saveRecord');
+  })
+
+});
+```
+
+```ts
+DS.Model.extend({
   isSaving: computed(function () {
     let requests = this.store.getRequestStateService().getPending(this);
     return !!requests.find((req) => req.data.op === 'saveRecord');
