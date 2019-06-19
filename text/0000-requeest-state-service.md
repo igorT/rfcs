@@ -78,10 +78,14 @@ interface Response {
 // exported from '@ember-data/store';
 function unsubscribe(token: UnsubscribeToken): void
 
+interface NotificationCallback {
+  (request: RequestState): void;
+}
+
 class RequestStateService {
-  getPendingRequests(recordIdentifier: RecordIdentifier): RequestState[]
-  getLastRequest(recordIdentifier: RecordIdentifier): RequestState | null
-  subscribe(recordIdentifier: RecordIdentifier, callback: Function): UnsubscribeToken
+  getPendingRequests(recordIdentifier: RecordIdentifier | Record): RequestState[]
+  getLastRequest(recordIdentifier: RecordIdentifier | Record): RequestState | null
+  subscribe(recordIdentifier: RecordIdentifier | Record, callback: Function): UnsubscribeToken
   unsubcribe(token: UnsubscribeToken): void
 }
 ```
@@ -103,24 +107,11 @@ The subscription mechanism is deliberately somewhat klunky in anticipation of re
 ```ts
 DS.Model.extend({
 
-  init() {
-    this._requestSubscriptions = {};
-  } 
-
   isSaving: computed(function () {
-    this._subscribeRequests('isSaving');
-    let requests = this.store.getRequestStateService().getPending(identifierForModel(this));
+    let requests = this.store.getRequestStateService().getPending(this);
     return !!requests.find((req) => req.data.op === 'saveRecord');
-  }),
+  })
 
-  _subscribeRequests(key) {
-    if (!this._requestSubscriptions[key]) {
-      this._requestSubscriptions[key] = true;
-      this.store.getRequestStateService().subscribe(identifierForModel(this), () => {
-        this.notifyPropertyChange(key);
-      })
-    }
-  }
 });
 ```
 
