@@ -34,29 +34,17 @@ interface Request {
   options: any
 }
 
-interface QueryRequest extends Request {
-  data: QueryOperation[];
-}
-
-interface MutationRequest extends Request {
-  data: MutationOperation[];
-}
-
-interface Operation {
+interface RequestOperation {
   op: string
 }
 
-interface Query extends Operation {};
-
-interface FindRecordQuery extends Query {
+interface FindRecordRequestOp extends RequestOperation {
   op: 'findRecord'
   recordIdentifier: RecordIdentifier
   options: any
 }
 
-interface Mutation extends Operation {};
-
-interface SaveRecordMutation extends Mutation {
+interface SaveRecordRequestOp extends RequestOperation {
   op: 'saveRecord'
   recordIdentifier: RecordIdentifier
   options: any
